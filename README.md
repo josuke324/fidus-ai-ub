@@ -25,56 +25,39 @@ Sebelum melakukan deployment, pastikan perangkat Anda sudah terinstall beberapa 
 
 ---
 
-### C. Konfigurasi Environment Variable (`.env`)
+### C. Konfigurasi Environment & Keamanan API Key
 
-Untuk keamanan, kredensial database dipisahkan melalui *Environment Variables*. Buatlah file bernama `.env` pada root direktori project sebelum menjalankan container (file ini tidak di-push ke GitHub demi keamanan):
+Untuk mematuhi standar keamanan industri, kredensial sensitif dan LLM API Key dilarang keras di-push langsung ke repositori publik demi menghindari eksploitasi oleh bot crawler otomatis. 
 
-```env
-# Database Configuration
-DB_HOST=fidus_db
-DB_USER=root
-DB_PASSWORD=rahasia_fidus_2026
-DB_NAME=ub_wellness_db
-DB_PORT=3306
-
-# Server Configuration
-PORT=3000
-```
+Oleh karena itu, sistem ini di-deploy menggunakan **Script Wrapper (`run.sh`)** yang berfungsi menyuntikkan *Environment Variables* dan API Key secara dinamis langsung ke memori lokal kontainer saat inisialisasi awal. Juri **tidak perlu** membuat atau mengonfigurasi file `.env` secara manual (Zero-Configuration Deployment).
 
 ---
 
 ### D. Langkah-Langkah Deployment (Step-by-Step)
 
-Juri hanya perlu mengeksekusi rangkaian perintah sederhana berikut di terminal untuk mendepolifikasi sistem secara lokal:
+Juri hanya perlu mengeksekusi rangkaian perintah sederhana berikut di terminal untuk menjalankan seluruh sistem beserta modul analisis AI secara instan:
 
-1. **Clone Repository**
-   Buka terminal, arahkan ke direktori kerja Anda, lalu jalankan perintah:
+1. **Clone & Masuk ke Direktori Project**
+   Buka terminal Anda, arahkan ke direktori kerja, lalu jalankan:
    ```bash
    git clone [https://github.com/josuke324/fidus-ai-ub.git](https://github.com/josuke324/fidus-ai-ub.git)
    cd fidus-ai-ub
    ```
 
-2. **Setup Konfigurasi Environment**
-   Salin baris konfigurasi `.env` yang tertera pada **Poin C** di atas, buat file baru bernama `.env` di root folder project, lalu paste isinya ke sana. Anda bisa menggunakan command line berikut:
+2. **Jalankan Otomatisasi Sistem**
+   Eksekusi script wrapper untuk memicu kompilasi container, penyiapan virtual network internal, injeksi aman API Key, dan inisialisasi otomatis skema database `init.sql`:
    ```bash
-   nano .env
-   # Paste konfigurasi dari Poin C, lalu simpan (Ctrl+O, Enter, Ctrl+X)
+   bash run.sh
    ```
 
-3. **Build dan Jalankan Layanan dengan Docker Compose**
-   Eksekusi perintah di bawah ini untuk mengunduh base image (*Node.js* & *MySQL*), mengonfigurasi virtual network internal, menginisialisasi skema database `init.sql` secara otomatis, dan menyalakan server di latar belakang (*detached mode*):
-   ```bash
-   docker-compose up -d --build
-   ```
-
-4. **Verifikasi Status Container**
-   Pastikan seluruh container penunjang sistem (Backend & Database) telah berjalan dengan status `Up`:
+3. **Verifikasi Status Container**
+   Pastikan seluruh layanan penunjang sistem telah berjalan dengan status `Up`:
    ```bash
    docker-compose ps
    ```
    *Catatan: Jika container mendadak `Exit`, pastikan port 3000 atau port 3306 di perangkat Anda tidak sedang digunakan oleh aplikasi lokal lain.*
 
-5. **Akses Aplikasi (Testing)**
+4. **Akses Aplikasi (Testing)**
    Buka browser web Anda dan gunakan tautan berikut untuk masuk ke sistem:
    - **Dashboard Utama**: `http://localhost:3000`
    - **Bypass Akses Konselor (Direct Link)**: `http://localhost:3000/doctor.html?role=psikiater`
@@ -84,7 +67,7 @@ Juri hanya perlu mengeksekusi rangkaian perintah sederhana berikut di terminal u
 ### E. Manajemen Layanan & Pembersihan (Troubleshooting)
 
 - **Melihat Log Aplikasi secara Real-time**
-  Jika juri ingin memantau aktivitas request API atau proses autentikasi backend yang sedang berjalan di dalam container:
+  Jika juri ingin memantau aktivitas request API atau proses analisis kognitif AI backend yang sedang berjalan di dalam container:
   ```bash
   docker-compose logs -f fidus_app
   ```
@@ -96,7 +79,7 @@ Juri hanya perlu mengeksekusi rangkaian perintah sederhana berikut di terminal u
   ```
 
 - **Membersihkan Total (Reset Environment)**
-  Jika ingin menghapus seluruh container, network, hingga isi database dummy untuk melakukan deployment ulang dari awal:
+  Jika ingin menghapus seluruh container, network, hingga volume database dummy untuk melakukan deployment ulang dari awal:
   ```bash
   docker-compose down -v
   ```
