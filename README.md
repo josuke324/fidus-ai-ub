@@ -11,8 +11,8 @@ Sistem dideploy menggunakan **Docker Compose** yang membagi aplikasi menjadi dua
 1. **Container Backend (`fidus_app`)**
    Menggunakan image *Node.js 18-alpine* yang ringan, bertugas menjalankan server Express dan melayani file statis UI.
 
-2. **Container Database (`fidus_db`)**
-   Menggunakan image *MySQL 8.0*, bertugas mengelola data persisten mahasiswa dan konselor.
+2. **Container Database (`db`)**
+   Menggunakan image *MySQL 8.0*, bertugas mengelola data persisten mahasiswa dan konselor secara aman dan terisolasi.
 
 ---
 
@@ -36,66 +36,61 @@ Oleh karena itu, sistem ini di-deploy menggunakan **Script Wrapper (`run.sh` / `
 
 ### D. Langkah-Langkah Deployment (Step-by-Step)
 
-Juri hanya perlu mengeksekusi rangkaian perintah sederhana berikut untuk menjalankan seluruh sistem beserta modul analisis AI secara instan:
+Juri hanya perlu mengikuti panduan spesifik per Sistem Operasi berikut ini agar aplikasi beserta fitur AI dapat berjalan secara instan:
 
-1. **Clone & Masuk ke Direktori Project**
-   Buka terminal/command prompt Anda, arahkan ke direktori kerja, lalu jalankan:
-   ```bash
-   git clone https://github.com/josuke324/fidus-ai-ub.git
-   cd fidus-ai-ub
-   ```
+**Langkah 1: Persiapan Terminal (Sangat Penting)**
+- **Khusus Pengguna Windows:** Buka Start Menu, ketik **CMD**, lalu klik kanan dan wajib pilih **"Run as Administrator"**.
+- **Khusus Pengguna Linux / macOS:** Buka aplikasi Terminal bawaan Anda.
 
-2. **Jalankan Otomatisasi Sistem (Sesuai OS)**
-   - **Jika Anda menggunakan Windows**: 
-     Cukup klik dua kali (*double-click*) file `run.bat` di dalam folder project, atau jalankan perintah berikut di CMD/PowerShell:
-     ```cmd
-     run.bat
-     ```
-   - **Jika Anda menggunakan Linux / macOS**: 
-     Jalankan perintah berikut di terminal:
-     ```bash
-     bash run.sh
-     ```
+**Langkah 2: Clone & Masuk ke Direktori Project**
+Jalankan perintah ini di dalam terminal Anda:
+```bash
+git clone [https://github.com/josuke324/fidus-ai-ub.git](https://github.com/josuke324/fidus-ai-ub.git)
+cd fidus-ai-ub
+```
+
+**Langkah 3: Jalankan Otomatisasi Sistem**
+- **Bagi Pengguna Windows:** Jalankan perintah berikut di dalam CMD Anda:
+```cmd
+run.bat
+```
+- **Bagi Pengguna Linux / macOS:** Jalankan perintah berikut di terminal Anda:
+```bash
+bash run.sh
+```
 
 > ⚠️ **PENTING: JIKA MUNCUL ERROR DOCKER API / SOCKET / DAEMON**
 > 
-> Jika proses build gagal dengan pesan *“failed to connect to the docker API”* atau *“docker daemon is not running”*, artinya service Docker di perangkat Anda belum aktif. Selesaikan dengan perintah berikut sesuai OS Anda:
-> - **Windows**: Cukup buka/jalankan aplikasi **Docker Desktop** Anda lewat Start Menu.
-> - **Linux (Docker Standard)**: Jalankan `sudo systemctl start docker`
-> - **Linux (Podman / Parrot OS User)**: Jalankan `systemctl --user enable --now podman.socket`
-> 
-> Setelah service aktif, silakan jalankan kembali file `run.bat` atau `bash run.sh`.
+> Jika proses gagal dengan pesan *“failed to connect to the docker API”*, artinya service Docker di perangkat Anda belum aktif. 
+> - **Windows**: Buka aplikasi **Docker Desktop** secara manual lewat Start Menu.
+> - **Linux (Standard)**: Ketik `sudo systemctl start docker`
+> - **Linux (Podman)**: Ketik `systemctl --user enable --now podman.socket`
+> Setelah aktif, jalankan kembali perintah pada **Langkah 3**.
 
-3. **Verifikasi Status Container**
-   Pastikan seluruh layanan penunjang sistem telah berjalan dengan status `Up`:
-   ```bash
-   docker-compose ps
-   ```
-   *Catatan: Jika container mendadak `Exit`, pastikan port 3000 atau port 3306 di perangkat Anda tidak sedang digunakan oleh aplikasi lokal lain.*
+**Langkah 4: Verifikasi Status Container**
+Pastikan seluruh layanan penunjang sistem telah berjalan dengan status `Up`:
+```bash
+docker-compose ps
+```
+*Catatan: Jika container mendadak `Exit`, pastikan Port 3000 atau Port 33306 di perangkat Anda tidak sedang digunakan oleh aplikasi lokal lain.*
 
-4. **Akses Aplikasi (Testing)**
-   Buka browser web Anda dan gunakan tautan berikut untuk masuk ke sistem:
-   - **Dashboard Utama**: `http://localhost:3000`
-   - **Bypass Akses Konselor (Direct Link)**: `http://localhost:3000/doctor.html?role=psikiater`
+**Langkah 5: Akses Aplikasi (Testing)**
+Buka browser web Anda dan gunakan tautan berikut untuk masuk ke sistem:
+- **Dashboard Utama**: `http://localhost:3000`
+- **Bypass Akses Konselor (Direct Link)**: `http://localhost:3000/doctor.html?role=psikiater`
 
 ---
 
 ### E. Manajemen Layanan & Pembersihan (Troubleshooting)
 
 - **Melihat Log Aplikasi secara Real-time**
-  Jika juri ingin memantau aktivitas request API atau proses analisis kognitif AI backend yang sedang berjalan di dalam container:
+  Jika juri ingin memantau aktivitas request API atau proses analisis kognitif AI:
   ```bash
   docker-compose logs -f fidus_app
   ```
 
-- **Menghentikan Layanan (Teardown)**
-  Untuk mematikan sistem dan membersihkan network virtual tanpa menghapus data persisten:
-  ```bash
-  docker-compose down
-  ```
-
-- **Membersihkan Total (Reset Environment)**
-  Jika ingin menghapus seluruh container, network, hingga volume database dummy untuk melakukan deployment ulang dari awal:
+- **Membersihkan Kesalahan (Wipe & Reset)**
+  Jika terjadi error fatal saat *running*, matikan dan hapus seluruh sisa container yang *corrupt* dengan perintah ini, lalu ulangi kembali **Langkah 3**:
   ```bash
   docker-compose down -v
   ```
