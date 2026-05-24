@@ -1,42 +1,42 @@
 version: '3.8'
 
 services:
-fidus_app:
-build: .
-ports:
-- "3000:3000"
-environment:
-- DB_HOST=db
-- DB_USER=root
-- DB_PASSWORD=rahasia_fidus_2026
-- DB_NAME=ub_wellness_db
-- DB_PORT=3306
-- PORT=3000
-- GEMINI_API_KEY=${GEMINI_API_KEY}
-depends_on:
-- db
-networks:
-- ub-wellness-network
+  fidus_app:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - DB_HOST=db
+      - DB_USER=root
+      - DB_PASSWORD=rahasia_fidus_2026
+      - DB_NAME=ub_wellness_db
+      - DB_PORT=3306
+      - PORT=3000
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+    depends_on:
+      - db
+    networks:
+      - ub-wellness-network
 
-db:
-image: mysql:8.0
-container_name: fidus_db
-restart: always
-environment:
-# PAKE FORMAT STRIP (-) DAN SAMA DENGAN (=) BIAR WINDOWS GAK BUDEG!
-- MYSQL_ROOT_PASSWORD=rahasia_fidus_2026
-- MYSQL_DATABASE=ub_wellness_db
-ports:
-- "33306:3306"
+  db:
+    image: mysql:8.0
+    container_name: fidus_db
+    restart: always
+    environment:
+      # PAKE FORMAT STRIP (-) DAN SAMA DENGAN (=) BIAR WINDOWS GAK BUDEG!
+      - MYSQL_ROOT_PASSWORD=rahasia_fidus_2026
+      - MYSQL_DATABASE=ub_wellness_db
+    ports:
+      - "33306:3306"
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - fidus_db_data:/var/lib/mysql
+    networks:
+      - ub-wellness-network
+
 volumes:
-- ./init.sql:/docker-entrypoint-initdb.d/init.sql
-- fidus_db_data:/var/lib/mysql
-networks:
-- ub-wellness-network
-
-volumes:
-fidus_db_data:
+  fidus_db_data:
 
 networks:
-ub-wellness-network:
-driver: bridge
+  ub-wellness-network:
+    driver: bridge

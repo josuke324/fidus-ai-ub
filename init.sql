@@ -55,7 +55,7 @@ INSERT INTO `chats` (`id`, `user_id`, `date`, `message_history`, `current_sentim
 CREATE TABLE `daily_metrics` (
   `id` int(11) NOT NULL,
   `user_id` int(11) DEFAULT NULL,
-  `date` date NOT NULL DEFAULT current_timestamp(),
+  `date` date NOT NULL DEFAULT (CURRENT_DATE),
   `daily_sentiment_score` int(11) NOT NULL DEFAULT 550,
   `journal_score` int(11) DEFAULT NULL,
   `chat_sentiment_score` int(11) DEFAULT NULL,
@@ -138,7 +138,7 @@ CREATE TABLE `psychiatrist_interventions` (
   `psikiater_id` int(11) DEFAULT NULL,
   `message` text NOT NULL,
   `status` enum('pending','resolved') DEFAULT 'pending',
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
