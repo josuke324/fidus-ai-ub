@@ -41,7 +41,7 @@ Juri hanya perlu mengeksekusi rangkaian perintah sederhana berikut untuk menjala
 1. **Clone & Masuk ke Direktori Project**
    Buka terminal/command prompt Anda, arahkan ke direktori kerja, lalu jalankan:
    ```bash
-   git clone [https://github.com/josuke324/fidus-ai-ub.git](https://github.com/josuke324/fidus-ai-ub.git)
+   git clone https://github.com/josuke324/fidus-ai-ub.git
    cd fidus-ai-ub
    ```
 
