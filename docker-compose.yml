@@ -10,7 +10,7 @@ environment:
 - DB_USER=root
 - DB_PASSWORD=rahasia_fidus_2026
 - DB_NAME=ub_wellness_db
-- DB_PORT=3306 # Port internal antar container tetep aman di 3306
+- DB_PORT=3306
 - PORT=3000
 - GEMINI_API_KEY=${GEMINI_API_KEY}
 depends_on:
@@ -23,10 +23,11 @@ image: mysql:8.0
 container_name: fidus_db
 restart: always
 environment:
-MYSQL_ROOT_PASSWORD: rahasia_fidus_2026
-MYSQL_DATABASE: ub_wellness_db
+# PAKE FORMAT STRIP (-) DAN SAMA DENGAN (=) BIAR WINDOWS GAK BUDEG!
+- MYSQL_ROOT_PASSWORD=rahasia_fidus_2026
+- MYSQL_DATABASE=ub_wellness_db
 ports:
-- "33306:3306" # Port luar diganti ke 33306, DIJAMIN AMAN TOTAL dari bentrok OS Windows
+- "33306:3306"
 volumes:
 - ./init.sql:/docker-entrypoint-initdb.d/init.sql
 - fidus_db_data:/var/lib/mysql
