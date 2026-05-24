@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="id" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - UB Wellness Center</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { 
+            background-color: #0f172a; 
+            color: #e2e8f0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Ambient Background Glow */
+        .ambient-glow {
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(56, 189, 248, 0.15) 0%, rgba(15, 23, 42, 0) 70%);
+            border-radius: 50%;
+            top: -100px;
+            left: -100px;
+            z-index: 0;
+        }
+        .ambient-glow-2 {
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(16, 185, 129, 0.1) 0%, rgba(15, 23, 42, 0) 70%);
+            border-radius: 50%;
+            bottom: -150px;
+            right: -150px;
+            z-index: 0;
+        }
+        
+        /* Glassmorphism Card */   
+        .glass-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            z-index: 1;
+            width: 100%;
+            max-width: 420px;
+            padding: 40px;
+        }
+
+        .form-control, .form-select {
+            background-color: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #f8fafc;
+        }
+        .form-control:focus, .form-select:focus {
+            background-color: rgba(15, 23, 42, 0.8);
+            border-color: #38bdf8;
+            box-shadow: 0 0 0 0.25rem rgba(56, 189, 248, 0.25);
+            color: #f8fafc;
+        }
+
+        .btn-login {
+            transition: all 0.2s;
+        }
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(56, 189, 248, 0.3);
+        }
+    </style>
+</head>
+<body>
+
+<div class="ambient-glow"></div>
+<div class="ambient-glow-2"></div>
+
+<div class="glass-card text-center">
+    <div class="mb-4">
+        <span class="fs-1 d-block mb-2">🍃</span>
+        <h3 class="fw-bold text-info mb-1">UB Wellness Center</h3>
+        <p class="text-muted small">Portal Kesehatan Mental Mahasiswa</p>
+    </div>
+
+    <div class="text-start mb-4">
+        <label class="form-label text-light small fw-bold">Pilih Akun Demo (Role)</label>
+        <select id="userRoleSelect" class="form-select mb-3">
+            <option value="student_12" selected>👨‍🎓 Mahasiswa (Contoh: Lula, FP)</option>
+            <option value="student_11">👩‍🎓 Mahasiswa (Contoh: Budi, FEB)</option>
+            <option value="student_21">👩‍🎓 Mahasiswa (Contoh: Budi_low, FIA)</option>
+            <option value="counselor_2">🩺 Psikiater / Konselor (Dr. Siska)</option>
+            <option value="counselor_22">🩺 Psikiater / Konselor (Dr. Nick)</option>
+        </select>
+        
+        <label class="form-label text-light small fw-bold">Password</label>
+        <input type="password" class="form-control" placeholder="Abaikan untuk versi demo..." disabled>
+    </div>
+
+    <button class="btn btn-info w-100 fw-bold btn-login text-dark py-2" onclick="handleLogin()">Masuk ke Dashboard ➡</button>
+    
+    <div class="mt-4 pt-3 border-top border-secondary text-muted" style="font-size: 0.75rem;">
+        Sistem Demo Internal FIDUS AI v1.0<br>
+        Universitas Brawijaya
+    </div>
+</div>
+
+<script>
+    function handleLogin() {
+        const selectedValue = document.getElementById('userRoleSelect').value;
+        const btn = document.querySelector('.btn-login');
+        
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Memuat sesi...';
+        btn.disabled = true;
+
+        setTimeout(() => {
+            if (selectedValue.startsWith('student_')) {
+                const userId = selectedValue.split('_')[1];
+                window.location.href = `student.html?userId=${userId}`;
+                
+            } else if (selectedValue.startsWith('counselor_')) {
+                const psiId = selectedValue.split('_')[1];
+                let psiName = "Siska";
+                if (psiId === "22") {
+                    psiName = "Nick";
+                }
+
+                // Simpan ke localStorage 
+                localStorage.setItem('userId', psiId);
+                localStorage.setItem('username', psiName);
+
+                window.location.href = `doctor.html?role=psikiater`;  
+            } 
+        }, 800); // Delay simulasi loading dipercepat sedikit menjadi 800ms agar lebih responsif
+    }
+</script>
+
+</body>
+</html>

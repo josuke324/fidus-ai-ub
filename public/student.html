@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="id" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ruang Tenang - UB Wellness Center</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { 
+            background-color: #0f172a; /* Deep Midnight Blue */
+            color: #e2e8f0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        
+        /* Glassmorphism */   
+        .glass-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .glass-card:hover {
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Chat Layout & Bubbles */
+        .chat-box { 
+            height: 420px; 
+            overflow-y: auto; 
+            overflow-x: hidden;
+            background-color: rgba(15, 23, 42, 0.6); 
+            border-radius: 12px; 
+            padding: 20px; 
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .message-user { 
+            background-color: #2563eb; /* Royal Blue */
+            color: white; 
+            padding: 11px 15px; 
+            border-radius: 18px 18px 4px 18px; 
+            margin-bottom: 14px; 
+            max-width: 75%; 
+            align-self: flex-end; 
+            font-size: 0.9rem; 
+            line-height: 1.5;
+            word-wrap: break-word;
+            box-shadow: 0 3px 10px rgba(37, 99, 235, 0.15);
+        }
+        .message-ai { 
+            background-color: #1e293b; /* Slate Gray */
+            color: #f8fafc; 
+            padding: 11px 15px; 
+            border-radius: 18px 18px 18px 4px; 
+            margin-bottom: 14px; 
+            max-width: 75%; 
+            align-self: flex-start;
+            font-size: 0.9rem; 
+            line-height: 1.5;
+            word-wrap: break-word;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        /* TYPING ANIMATION */
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 11px 15px;
+            background-color: #1e293b;
+            border-radius: 18px 18px 18px 4px;
+            margin-bottom: 14px;
+            max-width: fit-content;
+            align-self: flex-start;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .typing-dot {
+            width: 6px;
+            height: 6px;
+            background-color: #94a3b8;
+            border-radius: 50%;
+            animation: bounce 1.4s infinite ease-in-out both;
+        }
+
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+
+        /* Bubble Button for Crisis Injection */
+        .ai-action-btn {
+            display: block;
+            margin-top: 10px;
+            background: rgba(14, 165, 233, 0.15);
+            border: 1px solid #0ea5e9;
+            color: #38bdf8;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+            text-align: center;
+            transition: all 0.2s;
+        }
+        .ai-action-btn:hover {
+            background: rgba(14, 165, 233, 0.3);
+            color: #fff;
+        }
+
+        /* Interactive Editable Drafts */
+        .editable-draft {
+            display: block;
+            min-height: 35px;
+            padding: 6px 8px;
+            border-radius: 6px;
+            transition: background 0.2s, border 0.2s;
+            outline: none;
+            word-break: break-word;
+        }
+        .editable-draft:empty::before {
+            content: 'Belum terisi dari percakapan...';
+            color: #64748b;
+            pointer-events: none;
+        }
+        .editable-draft:hover { background-color: rgba(255, 255, 255, 0.04); }
+        .editable-draft:focus {
+            background-color: rgba(255, 255, 255, 0.08);
+            border-bottom: 2px solid #38bdf8;
+        }
+        
+        /* Modern Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #64748b; }
+
+        .text-truncate-3 { 
+            display: -webkit-box; 
+            -webkit-line-clamp: 3; 
+            -webkit-box-orient: vertical; 
+            overflow: hidden; 
+        }
+
+        /* Quick Mood Widget */
+        .quick-mood-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            margin: 15px 0 5px;
+            padding: 15px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px dashed rgba(255, 255, 255, 0.08);
+        }
+        .quick-mood-container p { margin: 0; font-size: 0.85rem; color: #94a3b8; }
+        .quick-mood-buttons { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+        .mood-btn {
+            width: 42px; height: 42px; border: none; border-radius: 50%; cursor: pointer;
+            font-weight: bold; font-size: 0.95rem; transition: transform 0.15s, box-shadow 0.15s;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+        }
+        .mood-btn:nth-child(1) { background-color: #ef4444; color: white; }
+        .mood-btn:nth-child(2) { background-color: #f97316; color: white; }
+        .mood-btn:nth-child(3) { background-color: #eab308; color: white; }
+        .mood-btn:nth-child(4) { background-color: #22c55e; color: white; }
+        .mood-btn:nth-child(5) { background-color: #3b82f6; color: white; }
+        .mood-btn:hover { transform: scale(1.15); box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+    </style>
+</head>
+<body>
+
+<div class="modal fade" id="dailyCheckinModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content glass-card border-secondary text-light">
+            <div class="modal-header border-bottom border-secondary">
+                <h5 class="modal-title fw-bold text-info">👋 Waktunya Check-in Mental!</h5>
+            </div>
+            <div class="modal-body text-center py-4">
+                <p class="mb-4 text-muted">Halo! Bagaimana kondisi suasana hati dan pikiranmu hari ini? Pilih skala di bawah ini (1-5) untuk memulai pencatatan harian.</p>
+                <div class="d-flex justify-content-center gap-2 mb-4">
+                    <button class="btn btn-danger fw-bold px-3" onclick="handlePopupMood(1, 'Sangat Buruk 😡')">1</button>
+                    <button class="btn btn-warning fw-bold text-dark px-3" onclick="handlePopupMood(2, 'Buruk 🙁')">2</button>
+                    <button class="btn btn-secondary fw-bold px-3" onclick="handlePopupMood(3, 'Biasa Saja 😐')">3</button>
+                    <button class="btn btn-info fw-bold text-dark px-3" onclick="handlePopupMood(4, 'Baik 🙂')">4</button>
+                    <button class="btn btn-success fw-bold px-3" onclick="handlePopupMood(5, 'Sangat Baik 😄')">5</button>
+                </div>
+                <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Nanti saja, langsung masuk ruang curhat</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<nav class="navbar navbar-expand-lg navbar-dark border-bottom border-secondary shadow-sm" style="background-color: #0f172a;">
+    <div class="container">
+        <a class="navbar-brand fw-bold text-info" href="#">🍃 Ruang Tenang UB Wellness</a>
+        <div class="dropdown ms-auto">
+            <button class="btn btn-secondary dropdown-toggle rounded-pill px-4" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                👤 <span id="current-username">Memuat identitas mahasiswa...</span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-dark shadow">
+                <li><a class="dropdown-item" href="#">⚙️ Pengaturan Akun</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item text-danger fw-bold" href="login.html">🚪 Logout</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-4" style="margin-bottom: 80px;">
+    
+    <div class="text-center mb-4 mt-2">
+        <h6 class="text-muted text-uppercase tracking-wider mb-1" style="letter-spacing: 0.1em; font-size: 0.75rem;">Indeks Stabilitas Mental (7 Hari Terakhir)</h6>
+        <h2 class="fw-bold text-info mb-0"><span id="wellnessIndexScore">--</span> <span class="fs-5 text-muted">/ 1000</span></h2>
+    </div>
+
+    <div id="doctorAlertBox" class="alert alert-info alert-dismissible fade show shadow-sm border-0 mb-4" style="display: none; background-color: rgba(14, 165, 233, 0.15); border-left: 4px solid #0ea5e9 !important; position: relative;">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 pe-4">
+            <div class="d-flex align-items-center">
+                <span class="fs-3 me-3">💙</span>
+                <div>
+                    <h6 class="fw-bold text-info mb-1">Pesan Hangat dari Tim Konselor</h6>
+                    <p id="doctorAlertText" class="mb-0 small text-light"></p>
+                </div>
+            </div>
+            <a id="waContactBtn" href="#" target="_blank" class="btn btn-info btn-sm fw-bold px-3 text-dark">Hubungi Dokter</a>
+        </div>
+        <button type="button" class="btn-close btn-close-white position-absolute top-50 end-0 translate-middle-y me-2" onclick="tutupAlertSementara()" aria-label="Close"></button>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <div class="card glass-card h-100 shadow-sm">
+                <div class="card-header bg-transparent border-bottom border-secondary d-flex justify-content-between align-items-center py-3">
+                    <div class="d-flex align-items-center">
+                        <span class="text-info me-2">●</span>
+                        <span class="fw-bold text-light">Konselor Sebaya AI (FIDUS)</span>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-outline-success btn-sm fw-bold px-3 shadow-sm" onclick="kePusatRelaksasi()" style="font-size: 0.75rem;">🍃 Pusat Relaksasi</button>
+                    </div>
+                </div>
+                
+                <div class="card-body d-flex flex-column justify-content-between">
+                    <div class="chat-box" id="chatBox"></div>
+                    
+                    <div class="quick-mood-container" id="quickMoodSelector">
+                        <p>Pilih level energimu saat ini (Quick Mood Log)</p>
+                        <div class="quick-mood-buttons">
+                            <button class="mood-btn" onclick="sendQuickMood(1,'Sangat Buruk 😡')">1</button>
+                            <button class="mood-btn" onclick="sendQuickMood(2,'Buruk 🙁')">2</button>
+                            <button class="mood-btn" onclick="sendQuickMood(3,'Biasa Saja 😐')">3</button>
+                            <button class="mood-btn" onclick="sendQuickMood(4,'Baik 🙂')">4</button>
+                            <button class="mood-btn" onclick="sendQuickMood(5,'Sangat Baik 😄')">5</button>
+                        </div>
+                    </div>
+                    
+                    <div class="input-group mt-3 align-items-end">
+                        <textarea id="chatInput" rows="1" class="form-control bg-dark text-light border-secondary" placeholder="Ceritakan apa saja yang membebani pikiranmu hari ini..." onkeypress="handleKeyPress(event)" oninput="autoResize(this)" style="resize:none; overflow-y:hidden; border-radius:10px 0 0 10px; line-height:1.5; padding:12px; max-height:120px; font-size: 0.9rem;"></textarea>
+                        <button class="btn btn-info text-dark fw-bold px-4" id="btnSend" onclick="sendMessage()" style="border-radius:0 10px 10px 0; align-self:stretch;">Kirim</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="card glass-card h-100 shadow-sm border-secondary">
+                <div class="card-header bg-transparent border-bottom border-secondary py-3 fw-bold text-info d-flex justify-content-between align-items-center">
+                    <span>📝 Lembar Jurnal Refleksi CBT</span>
+                    <span class="badge bg-secondary-subtle text-secondary px-2 py-1" style="font-size: 0.65rem;">Interaktif & Dapat Diedit</span>
+                </div>
+                <div class="card-body d-flex flex-column justify-content-between">
+                    <div>
+                        <p class="text-muted style mb-3" style="font-size: 0.8rem;">Sembari kamu bercerita dengan FIDUS AI di sebelah kiri, sari pati pemikiranmu akan otomatis terekstraksi ke kolom di bawah ini secara objektif.</p>
+                        <ul class="list-group list-group-flush" id="journalDraft" style="font-size: 0.85rem;">
+                            <li class="list-group-item bg-transparent text-light border-secondary px-0 py-2">
+                                <b class="text-info d-block mb-1">1. Kondisi Emosi Saat Ini (Feeling):</b>
+                                <span id="draft-q1" class="editable-draft text-light bg-dark bg-opacity-20" contenteditable="true"></span>
+                            </li>
+                            <li class="list-group-item bg-transparent text-light border-secondary px-0 py-2">
+                                <b class="text-info d-block mb-1">2. Otomatisasi Pikiran Negatif (Thought):</b>
+                                <span id="draft-q2" class="editable-draft text-light bg-dark bg-opacity-20" contenteditable="true"></span>
+                            </li>
+                            <li class="list-group-item bg-transparent text-light border-secondary px-0 py-2">
+                                <b class="text-info d-block mb-1">3. Faktor/Bukti Pendukung Stresor (Supporting):</b>
+                                <span id="draft-q3" class="editable-draft text-light bg-dark bg-opacity-20" contenteditable="true"></span>
+                            </li>
+                            <li class="list-group-item bg-transparent text-light border-secondary px-0 py-2">
+                                <b class="text-success d-block mb-1">4. Penantang / Restrukturisasi Alternatif (Contradicting):</b>
+                                <span id="draft-q4" class="editable-draft text-light bg-dark bg-opacity-20" contenteditable="true"></span>
+                            </li>
+                            <li class="list-group-item bg-transparent text-light border-secondary px-0 py-2">
+                                <b class="text-info d-block mb-1">5. Hal yang Disyukuri (Gratitude):</b>
+                                <span id="draft-q5" class="editable-draft text-light bg-dark bg-opacity-20" contenteditable="true"></span>
+                            </li>
+                        </ul>
+                    </div>
+                    <button class="btn btn-outline-info w-100 mt-3 fw-bold text-uppercase p-2.5" style="font-size: 0.8rem; letter-spacing:0.5px;" onclick="submitJournal()">Kunci & Simpan Jurnal Hari Ini</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <hr class="border-secondary my-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="fw-bold text-light mb-0">📓 Arsip Historis & Tren Grafik</h4>
+    </div>
+    
+    <div class="row row-cols-1 row-cols-md-3 g-4 justify-content-center" id="journalHistoryContainer"></div>
+    
+    <div class="card glass-card shadow-sm border-secondary mt-5 mb-4">
+        <div class="card-header bg-transparent border-bottom border-secondary py-3">
+            <span class="fw-bold text-muted small text-uppercase tracking-wider">Grafik Visualisasi Tren Kesehatan Mental</span>
+        </div>
+        <div class="card-body p-3" style="height: 280px;">
+            <canvas id="wellnessChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- SISTEM KEAMANAN ---
+    const CURRENT_USER_ID = new URLSearchParams(window.location.search).get('userId');
+    if (!CURRENT_USER_ID) {
+        alert("Sesi tidak valid! Silakan login terlebih dahulu.");
+        window.location.href = "login.html"; 
+    }
+
+    let chatCount = 0;
+    let trendChart;
+    let typingIndicatorElement = null;
+
+    function tutupAlertSementara() {
+        document.getElementById('doctorAlertBox').style.display = 'none';
+    }
+    function kePusatRelaksasi() {
+        window.location.href = `meditation.html?userId=${CURRENT_USER_ID}`;
+    }
+
+    // --- TYPING INDICATOR UI ---
+    function showTypingIndicator() {
+        const chatBox = document.getElementById('chatBox');
+        typingIndicatorElement = document.createElement('div');
+        typingIndicatorElement.className = 'typing-indicator';
+        typingIndicatorElement.innerHTML = `
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+        `;
+        chatBox.appendChild(typingIndicatorElement);
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function removeTypingIndicator() {
+        if (typingIndicatorElement && typingIndicatorElement.parentNode) {
+            typingIndicatorElement.parentNode.removeChild(typingIndicatorElement);
+            typingIndicatorElement = null;
+        }
+    }
+
+    // --- CORE RENDERING ENGINE ---
+    async function loadChatHistory(userId, username) {
+        try {
+            const response = await fetch(`/api/chat/history/${userId}`);
+            const result = await response.json();
+            if (result.success) {
+                const chatBox = document.getElementById('chatBox');
+                chatBox.innerHTML = ''; 
+                if (result.history && result.history.length > 0) {
+                    result.history.forEach(msg => {
+                        let textBody = msg.text || (msg.parts && msg.parts[0]?.text) || (typeof msg.parts === 'string' ? msg.parts : "");
+                        if (textBody && !textBody.includes('[SYSTEM:')) {
+                            const senderType = (msg.role === 'model' || msg.role === 'ai') ? 'ai' : 'user';
+                            appendMessage(senderType, textBody, false);
+                        }
+                    });
+                } else {
+                    appendMessage('ai', `Halo ${username}, aku FIDUS. Ruangan ini sepenuhnya aman untukmu. Apa yang sedang mengganjal atau membuatmu lelah akhir-akhir ini? Ceritakan saja perlahan.`);
+                }
+            }
+        } catch (error) { console.error('Error loadChatHistory:', error); }
+    }
+
+    async function loadStudentDashboard() {
+        try {
+            const response = await fetch(`/api/student/dashboard/${CURRENT_USER_ID}`); 
+            const result = await response.json();
+            
+            if (result.success) {
+                // 1. Set Identitas & Load Chat
+                document.getElementById('current-username').innerText = result.username;
+                loadChatHistory(CURRENT_USER_ID, result.username);
+
+                // 2. Load Grafik
+                if (result.trend && result.trend.length > 0) {
+                    const labels = result.trend.map(d => d.short_date);
+                    const metrics = result.trend.map(d => d.global_7day_score);
+                    trendChart.data.labels = labels;
+                    trendChart.data.datasets[0].data = metrics;
+                    trendChart.update();
+                    document.getElementById('wellnessIndexScore').innerText = metrics[metrics.length - 1];
+                }
+
+                // 3. Load Notifikasi Dokter
+                const doctorAlertElement = document.getElementById('doctorAlertBox');
+                if (result.doctorMessage) { 
+                    doctorAlertElement.style.display = 'block';
+                    const doctorNameStr = result.doctorName && result.doctorName !== 'Tim Konselor' ? 'dr. ' + result.doctorName : result.doctorName || 'Tim Konselor';
+                    document.querySelector('#doctorAlertBox h6').innerText = `${doctorNameStr} memperhatikan perkembanganmu hari ini.`;
+                    document.getElementById('doctorAlertText').innerText = result.doctorMessage;
+                    document.getElementById('waContactBtn').href = `https://wa.me/6281234567890?text=${encodeURIComponent('Halo ' + doctorNameStr + ', saya ' + result.username + ' ingin merespons pesan atensi di sistem UB Wellness Center.')}`;
+                } else {
+                    doctorAlertElement.style.display = 'none';
+                }
+
+                // 4. Manajemen Kartu History Jurnal Bawah
+                const historyContainer = document.getElementById('journalHistoryContainer');
+                let cardsHtmlMarkup = `
+                    <div class="col">
+                        <div class="card h-100 bg-dark border-secondary shadow-sm" style="border-top: 4px solid #eab308;">
+                            <div class="card-body d-flex flex-column justify-content-center text-center p-4">
+                                <span class="fs-2 mb-2">💡</span>
+                                <p class="fst-italic text-warning small mb-3">"Mengekspresikan emosi lewat tulisan terbukti merestrukturisasi kekacauan kognitif."</p>
+                            </div>
+                        </div>
+                    </div>`;
+
+                if (result.journals && result.journals.length > 0) {
+                    result.journals.forEach(j => {
+                        cardsHtmlMarkup += `
+                            <div class="col">
+                                <div class="card bg-dark border-secondary h-100 shadow-sm" style="border-left: 4px solid #3b82f6;">
+                                    <div class="card-body p-3">
+                                        <small class="text-muted fw-bold d-block mb-3 border-bottom border-secondary pb-1">🗓️ ${j.nice_date}</small>
+                                        <div class="mb-2"><span class="text-info fw-bold d-block" style="font-size: 0.72rem;">EMOSI:</span><p class="small text-light mb-1 text-truncate-3 fst-italic">"${j.q1_feeling || '-'}"</p></div>
+                                        <div class="mb-2"><span class="text-warning fw-bold d-block" style="font-size: 0.72rem;">NEGATIF THOUGHT:</span><p class="small text-light mb-1 text-truncate-3">${j.q2_thought || '-'}</p></div>
+                                        <div class="mb-2"><span class="text-danger fw-bold d-block" style="font-size: 0.72rem;">BUKTI PENDUKUNG:</span><p class="small text-light mb-1 text-truncate-3">${j.q3_supporting || '-'}</p></div>
+                                        <div class="mb-2"><span class="text-success fw-bold d-block" style="font-size: 0.72rem;">ALTERNATIF CBT:</span><p class="small text-light mb-1 text-truncate-3 fw-semibold">✔ ${j.q4_contradicting || '-'}</p></div>
+                                        <div><span class="fw-bold d-block" style="font-size: 0.72rem; color:#c084fc;">RASA SYUKUR:</span><p class="small text-muted mb-0 text-truncate-3">💖 ${j.q5_gratitude || '-'}</p></div>
+
+                                        <div class="mt-3 p-2 rounded" style="background-color: rgba(14, 165, 233, 0.1); border-left: 3px solid #0ea5e9;">
+                                            <span class="fw-bold d-block text-info" style="font-size: 0.72rem;">✨ AI SUMMARY & FEEDBACK:</span>
+                                            <p class="small text-light mb-0 fst-italic">"${j.ai_feedback || 'Menunggu kesimpulan AI...'}"</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>`;
+                    });
+                }
+                historyContainer.innerHTML = cardsHtmlMarkup;
+
+                const inlineQuickForm = document.getElementById('quickMoodSelector');
+                
+                if (result.todayJournal) {
+                    // JIKA SUDAH ADA JURNAL HARI INI
+                    document.getElementById('draft-q1').innerText = result.todayJournal.q1_feeling || '';
+                    document.getElementById('draft-q2').innerText = result.todayJournal.q2_thought || '';
+                    document.getElementById('draft-q3').innerText = result.todayJournal.q3_supporting || '';
+                    document.getElementById('draft-q4').innerText = result.todayJournal.q4_contradicting || '';
+                    document.getElementById('draft-q5').innerText = result.todayJournal.q5_gratitude || '';
+                    
+                    if (inlineQuickForm) inlineQuickForm.style.display = 'none';
+                    localStorage.setItem(`lastMessageTime_${CURRENT_USER_ID}`, new Date().getTime());
+                } else {
+                    // blm
+                    if (inlineQuickForm) inlineQuickForm.style.display = '';
+
+                    const lastMsgTimeStr = localStorage.getItem(`lastMessageTime_${CURRENT_USER_ID}`);
+                    let showModal = false;
+
+                    if (!lastMsgTimeStr) {
+                        showModal = true;
+                    } else {
+                        const lastMsgTime = new Date(parseInt(lastMsgTimeStr));
+                        const now = new Date();
+                        
+                        const isNewDay = lastMsgTime.getDate() !== now.getDate() || 
+                                         lastMsgTime.getMonth() !== now.getMonth() || 
+                                         lastMsgTime.getFullYear() !== now.getFullYear();
+                        
+                        const diffHours = (now.getTime() - lastMsgTime.getTime()) / (1000 * 60 * 60);
+
+                        if (isNewDay || diffHours >= 12) {
+                            showModal = true;
+                        }
+                    }
+
+                    if (showModal) {
+                        setTimeout(() => {
+                            const modalNode = document.getElementById('dailyCheckinModal');
+                            if (modalNode && !modalNode.classList.contains('show')) {
+                                const bootstrapModal = new bootstrap.Modal(modalNode);
+                                bootstrapModal.show();
+                            }
+                        }, 800);
+                    }
+                }
+            }
+        } catch (error) { console.error("Error load dashboard:", error); }
+    }
+
+    // crisis
+    function appendMessage(sender, text, isCrisis = false) {
+        if (sender === 'user' && text.includes("Aku lagi lelah mengetik cerita panjang.")) {
+            text = "📊 Mengirim Pembaruan Quick Mood Log...";
+        }
+        
+        const chatBox = document.getElementById('chatBox');
+        const messageDiv = document.createElement('div');
+        messageDiv.className = sender === 'user' ? 'message-user' : 'message-ai';
+        messageDiv.innerText = text;
+
+        if (sender === 'ai' && isCrisis) {
+            const crisisBtn = document.createElement('a');
+            crisisBtn.className = 'ai-action-btn mt-3';
+            crisisBtn.innerHTML = '🚨 Aku butuh Jeda Napas sekarang';
+            crisisBtn.onclick = function() {
+                window.location.href = `meditation.html?userId=${CURRENT_USER_ID}`;
+            };
+            messageDiv.appendChild(crisisBtn);
+        }
+
+        chatBox.appendChild(messageDiv);
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function sendQuickMood(score, label) {
+        const inlineQuickForm = document.getElementById('quickMoodSelector');
+        if (inlineQuickForm) inlineQuickForm.style.display = 'none';
+
+        document.getElementById('chatInput').value = `Aku lagi lelah mengetik cerita panjang. Tapi mood aku hari ini di level ${score} dari 5 (${label}). Tolong catat ini sebagai jurnal harianku ya.`;
+        sendMessage();
+    }
+
+    async function sendMessage() {
+        localStorage.setItem(`lastMessageTime_${CURRENT_USER_ID}`, new Date().getTime());
+        const inputField = document.getElementById('chatInput');
+        const message = inputField.value.trim();
+        if (!message) return;
+
+        if (document.getElementById('quickMoodSelector')) {
+            document.getElementById('quickMoodSelector').style.display = 'none';
+        }
+
+        appendMessage('user', message);
+        inputField.value = '';
+
+        const btnSend = document.getElementById('btnSend');
+        btnSend.disabled = true; btnSend.textContent = 'Mikir...';
+
+        showTypingIndicator();
+
+        try {
+            const response = await fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message, userId: CURRENT_USER_ID })
+            });
+            const result = await response.json();
+            
+            removeTypingIndicator();
+
+            if (result.success) {
+                let isCrisisDeteced = false;
+                const lowerReply = result.reply.toLowerCase();
+                
+                const lastSOSTime = localStorage.getItem(`lastSOS_${CURRENT_USER_ID}`);
+                const nowMs = Date.now();
+                const COOLDOWN_MS = 60 * 60 * 1000;
+
+                if (lowerReply.includes("panik") || lowerReply.includes("napas") || lowerReply.includes("berat") || lowerReply.includes("lelah")) {
+                    if (!lastSOSTime || (nowMs - parseInt(lastSOSTime)) > COOLDOWN_MS) {
+                        isCrisisDeteced = true;
+                        localStorage.setItem(`lastSOS_${CURRENT_USER_ID}`, nowMs.toString());
+                    }
+                }
+
+                appendMessage('ai', result.reply, isCrisisDeteced);
+                loadStudentDashboard();
+                
+                chatCount++;
+                if (chatCount >= 5) {
+                    alert("🚀 Batas aman 5 obrolan tercapai! Jurnal CBT otomatis dikunci.");
+                    submitJournal();
+                }
+            }
+        } catch (e) {
+            removeTypingIndicator();
+            appendMessage('ai', 'Maaf, server pemrosesan sedang sibuk. Namun ceritamu tersimpan aman di basis data lokal.');
+        } finally {
+            btnSend.disabled = false; btnSend.textContent = 'Kirim';
+        }
+    }
+
+    async function submitJournal() {
+        const buttonSubmitSelector = document.querySelector('button[onclick="submitJournal()"]');
+        buttonSubmitSelector.innerText = "Mengunci Data..."; buttonSubmitSelector.disabled = true;
+        try {
+            const response = await fetch('/api/journal/submit', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    userId: CURRENT_USER_ID,
+                    feeling: document.getElementById('draft-q1').innerText,
+                    thought: document.getElementById('draft-q2').innerText,
+                    supporting: document.getElementById('draft-q3').innerText,
+                    contradicting: document.getElementById('draft-q4').innerText,
+                    gratitude: document.getElementById('draft-q5').innerText
+                })
+            });
+            const data = await response.json();
+            if(data.success) {
+                alert(`BERHASIL! Jurnal CBT terkunci.\nTren Indeks Mental diperbarui ke skala: ${data.global7DayScore}`);
+                loadStudentDashboard();
+            }
+        } catch(error) { alert("Terjadi kendala interkoneksi saat mengunci lembar jurnal."); }
+        finally { buttonSubmitSelector.innerText = "Kunci & Simpan Jurnal Hari Ini"; buttonSubmitSelector.disabled = false; }
+    }
+
+    function handlePopupMood(score, label) {
+        const modalElement = bootstrap.Modal.getInstance(document.getElementById('dailyCheckinModal'));
+        if (modalElement) modalElement.hide();
+        
+        const inlineQuickForm = document.getElementById('quickMoodSelector');
+        if (inlineQuickForm) inlineQuickForm.style.display = 'none';
+
+        if (score <= 2) {
+            if (confirm(`Harimu sepertinya berat ya (${label}). Mau dengerin instrumen penenang dulu sebelum ngetik?`)) {
+                window.open('https://www.youtube.com/results?search_query=guided+meditation+indonesia', '_blank');
+            }
+        }
+
+        document.getElementById('chatInput').value = `Aku lagi lelah mengetik cerita panjang. Tapi mood aku hari ini di level ${score} dari 5 (${label}). Tolong catat ini sebagai jurnal harianku ya.`;
+        sendMessage();
+    }
+
+    function autoResize(el) { el.style.height = 'auto'; el.style.height = Math.min(el.scrollHeight, 120) + 'px'; }
+    function handleKeyPress(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        const canvasCtx = document.getElementById('wellnessChart').getContext('2d');
+        
+        // 1. INISIALISASI GRAFIK
+        trendChart = new Chart(canvasCtx, {
+            type: 'line',
+            data: { labels: [], datasets: [{ label: 'Wellness Score', data: [], borderColor: '#0ea5e9', backgroundColor: 'rgba(14,165,233,0.12)', borderWidth: 3, tension: 0.3, fill: true }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { min: 0, max: 1000 } } }
+        });
+        
+        // PANGGIL DASHBOARD (Sistem ini yg akan otomatis panggil chat history dan atur popup/tombol)
+        loadStudentDashboard();
+    });
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

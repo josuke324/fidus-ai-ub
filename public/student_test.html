@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="id" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ruang Tenang - UB Wellness</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --slate-950: #060B18;
+            --slate-900: #0f172a;
+            --slate-800: #1e293b;
+            --slate-700: #334155;
+            --slate-600: #475569;
+            --slate-400: #94a3b8;
+            --slate-200: #e2e8f0;
+            --teal-400: #2dd4bf;
+            --teal-300: #5eead4;
+            --teal-100: rgba(45, 212, 191, 0.12);
+            --blue-500: #3b82f6;
+            --blue-100: rgba(59, 130, 246, 0.12);
+            --glass: rgba(15, 23, 42, 0.55);
+            --glass-border: rgba(255, 255, 255, 0.07);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            background-color: var(--slate-950);
+            color: var(--slate-200);
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 300;
+            min-height: 100vh;
+            background-image:
+                radial-gradient(ellipse 60% 40% at 80% 10%, rgba(45, 212, 191, 0.06) 0%, transparent 60%),
+                radial-gradient(ellipse 50% 50% at 10% 80%, rgba(59, 130, 246, 0.05) 0%, transparent 60%);
+        }
+
+        /* ── NAV ── */
+        .navbar {
+            background: rgba(6, 11, 24, 0.85) !important;
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--glass-border) !important;
+        }
+        .navbar-brand {
+            font-family: 'DM Serif Display', serif;
+            font-size: 1.15rem;
+            color: var(--teal-400) !important;
+            letter-spacing: -0.02em;
+        }
+        .navbar-text { font-size: 0.82rem; color: var(--slate-400) !important; }
+        .navbar-text b { color: var(--slate-200); font-weight: 500; }
+
+        /* ── WELLNESS SCORE ── */
+        .score-area { text-align: center; padding: 2.5rem 0 2rem; }
+        .score-label {
+            font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase;
+            color: var(--slate-600); margin-bottom: 0.5rem;
+        }
+        .score-number {
+            font-family: 'DM Serif Display', serif;
+            font-size: 3.5rem; line-height: 1;
+            color: var(--teal-400);
+        }
+        .score-denom { font-size: 1rem; color: var(--slate-600); margin-left: 4px; }
+
+        /* ── GLASS CARD ── */
+        .glass-card {
+            background: var(--glass);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+        }
+        .card-header-custom {
+            padding: 1rem 1.25rem 0.75rem;
+            border-bottom: 1px solid var(--glass-border);
+            font-size: 0.82rem;
+            font-weight: 500;
+            letter-spacing: 0.03em;
+            color: var(--slate-400);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .card-header-custom .icon { font-size: 1rem; }
+
+        /* ── CHAT ── */
+        .chat-box {
+            height: 380px;
+            overflow-y: auto;
+            padding: 1.25rem;
+            background: rgba(6, 11, 24, 0.4);
+            border-radius: 12px;
+        }
+        .message-user {
+            background: var(--blue-500);
+            color: #fff;
+            padding: 10px 15px;
+            border-radius: 18px 18px 4px 18px;
+            margin-bottom: 12px;
+            max-width: 78%;
+            float: right;
+            clear: both;
+            font-size: 0.88rem;
+            line-height: 1.55;
+        }
+        .message-ai {
+            background: var(--slate-800);
+            color: var(--slate-200);
+            padding: 10px 15px;
+            border-radius: 18px 18px 18px 4px;
+            margin-bottom: 12px;
+            max-width: 78%;
+            float: left;
+            clear: both;
+            font-size: 0.88rem;
+            line-height: 1.55;
+            border: 1px solid var(--glass-border);
+        }
+        .quick-mood-container {
+            clear: both;
+            background: rgba(45, 212, 191, 0.04);
+            border: 1px dashed rgba(45, 212, 191, 0.2);
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
+            margin: 8px 0;
+        }
+        .quick-mood-container p { font-size: 0.78rem; color: var(--slate-400); margin-bottom: 0.75rem; }
+        .mood-btn {
+            width: 38px; height: 38px;
+            border-radius: 50%;
+            border: 1px solid var(--glass-border);
+            background: var(--slate-800);
+            color: var(--slate-200);
+            font-size: 0.85rem; font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin: 0 4px;
+        }
+        .mood-btn:hover { background: var(--teal-400); color: var(--slate-950); border-color: var(--teal-400); transform: scale(1.1); }
+
+        .chat-input-wrap {
+            display: flex;
+            gap: 8px;
+            margin-top: 1rem;
+        }
+        .chat-input-wrap input {
+            flex: 1;
+            background: var(--slate-800);
+            border: 1px solid var(--glass-border);
+            color: var(--slate-200);
+            border-radius: 12px;
+            padding: 10px 14px;
+            font-size: 0.875rem;
+            font-family: 'DM Sans', sans-serif;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .chat-input-wrap input:focus { border-color: rgba(45, 212, 191, 0.4); }
+        .chat-input-wrap input::placeholder { color: var(--slate-600); }
+        .btn-send {
+            background: var(--teal-400);
+            color: var(--slate-950);
+            border: none;
+            border-radius: 12px;
+            padding: 10px 18px;
+            font-size: 0.82rem;
+            font-weight: 500;
+            font-family: 'DM Sans', sans-serif;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .btn-send:hover { background: var(--teal-300); }
+        .btn-send:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* ── JOURNAL DRAFT ── */
+        .draft-field-wrap {
+            padding: 0.75rem;
+            border-radius: 10px;
+            background: rgba(6, 11, 24, 0.3);
+            border: 1px solid var(--glass-border);
+            margin-bottom: 8px;
+            transition: border-color 0.2s;
+        }
+        .draft-field-wrap:focus-within {
+            border-color: rgba(45, 212, 191, 0.35);
+        }
+        .draft-label {
+            font-size: 0.68rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--slate-600);
+            margin-bottom: 4px;
+        }
+        .draft-editable {
+            display: block;
+            width: 100%;
+            min-height: 36px;
+            font-size: 0.85rem;
+            color: var(--teal-300);
+            font-family: 'DM Sans', sans-serif;
+            line-height: 1.55;
+            outline: none;
+            word-break: break-word;
+        }
+        .draft-editable:empty::before {
+            content: attr(data-placeholder);
+            color: var(--slate-600);
+            pointer-events: none;
+        }
+        .draft-editable:focus { color: var(--slate-200); }
+
+        .btn-save-journal {
+            width: 100%;
+            margin-top: 1rem;
+            padding: 11px;
+            border-radius: 12px;
+            background: transparent;
+            border: 1px solid rgba(45, 212, 191, 0.35);
+            color: var(--teal-400);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-save-journal:hover { background: var(--teal-100); }
+
+        /* ── SWIPEABLE DECK ── */
+        .deck-section { margin-bottom: 2rem; }
+        .deck-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        .deck-header h5 {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--slate-200);
+            margin: 0;
+        }
+        .deck-counter { font-size: 0.75rem; color: var(--slate-600); }
+
+        .deck-wrapper {
+            position: relative;
+            height: 258px;
+            user-select: none;
+            touch-action: pan-y;
+        }
+
+        .deck-card {
+            position: absolute;
+            width: 100%;
+            height: 210px;
+            border-radius: 16px;
+            border: 1px solid var(--glass-border);
+            background: rgba(20, 32, 54, 0.82);
+            backdrop-filter: blur(12px);
+            padding: 1.25rem;
+            cursor: grab;
+            transition: transform 0.38s cubic-bezier(.22,.68,0,1.15), opacity 0.3s ease, width 0.38s cubic-bezier(.22,.68,0,1.15), left 0.38s cubic-bezier(.22,.68,0,1.15);
+            will-change: transform;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            top: 0; left: 0;
+        }
+        .deck-card.is-dragging { cursor: grabbing; transition: none; }
+
+        .deck-card[data-pos="0"] { transform: translateY(0);   width: 100%; left: 0%;    z-index: 10; opacity: 1; }
+        .deck-card[data-pos="1"] { transform: translateY(18px); width: 94%; left: 3%;    z-index: 9;  opacity: 1;    background: rgba(16,26,46,0.88); }
+        .deck-card[data-pos="2"] { transform: translateY(34px); width: 88%; left: 6%;    z-index: 8;  opacity: 0.7;  background: rgba(12,20,38,0.88); }
+        .deck-card[data-pos="3"] { transform: translateY(48px); width: 82%; left: 9%;    z-index: 7;  opacity: 0;    pointer-events: none; }
+
+        .deck-tag {
+            font-size: 0.65rem;
+            font-weight: 500;
+            letter-spacing: 0.09em;
+            text-transform: uppercase;
+            padding: 3px 10px;
+            border-radius: 99px;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+        .tag-quote { background: rgba(45, 212, 191, 0.12); color: var(--teal-400); border: 1px solid rgba(45, 212, 191, 0.2); }
+        .tag-journal { background: var(--blue-100); color: #93c5fd; border: 1px solid rgba(59, 130, 246, 0.2); }
+
+        .deck-quote-text {
+            font-family: 'DM Serif Display', serif;
+            font-style: italic;
+            font-size: 0.92rem;
+            color: var(--slate-300);
+            line-height: 1.65;
+            flex: 1;
+        }
+        .deck-feeling {
+            font-size: 0.84rem;
+            color: var(--slate-300);
+            line-height: 1.6;
+            flex: 1;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .deck-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid var(--glass-border);
+        }
+        .deck-date { font-size: 0.72rem; color: var(--slate-600); }
+        .deck-cbt {
+            font-size: 0.72rem;
+            color: #93c5fd;
+            max-width: 55%;
+            text-align: right;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .deck-dots { display: flex; gap: 5px; justify-content: center; margin-top: 0.75rem; }
+        .deck-dot {
+            width: 5px; height: 5px;
+            border-radius: 99px;
+            background: var(--slate-700);
+            transition: all 0.3s;
+        }
+        .deck-dot.active { background: var(--teal-400); width: 16px; }
+        .deck-hint { font-size: 0.72rem; color: var(--slate-600); text-align: center; margin-top: 0.5rem; }
+
+        /* ── CHART ── */
+        .chart-card { border-radius: 16px; padding: 1.25rem; height: 220px; }
+
+        /* ── ALERT ── */
+        .alert-doctor {
+            background: rgba(220, 53, 69, 0.08);
+            border: 1px solid rgba(220, 53, 69, 0.25);
+            border-radius: 12px;
+            padding: 1rem 1.25rem;
+            display: none;
+            margin-bottom: 1.5rem;
+        }
+        .alert-doctor h6 { font-size: 0.82rem; font-weight: 500; color: #f87171; margin-bottom: 4px; }
+        .alert-doctor p { font-size: 0.82rem; color: var(--slate-400); margin: 0; }
+
+        /* ── SCROLLBAR ── */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--slate-700); border-radius: 10px; }
+
+        .section-divider { border: none; border-top: 1px solid var(--glass-border); margin: 2rem 0; }
+
+        .text-truncate-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark shadow-sm">
+    <div class="container">
+        <a class="navbar-brand" href="#">🍃 Ruang Tenang</a>
+        <span class="navbar-text">Halo, <b id="navUsername">...</b></span>
+    </div>
+</nav>
+
+<div class="container pb-5" style="max-width: 960px;">
+
+    <!-- Score -->
+    <div class="score-area">
+        <p class="score-label">Indeks Stabilitas Mental · 7 Hari</p>
+        <div>
+            <span class="score-number" id="wellnessIndexScore">—</span>
+            <span class="score-denom">/ 1000</span>
+        </div>
+    </div>
+
+    <!-- Doctor alert -->
+    <div class="alert-doctor" id="doctorAlertBox">
+        <h6>⚠️ Pesan dari UB Wellness</h6>
+        <p id="doctorAlertText"></p>
+    </div>
+
+    <!-- Main row: Chat + Draft -->
+    <div class="row g-4 mb-4">
+
+        <!-- Chat -->
+        <div class="col-md-7">
+            <div class="glass-card h-100">
+                <div class="card-header-custom">
+                    <span class="icon">💬</span> Teman Curhat AI
+                </div>
+                <div class="p-3">
+                    <div class="chat-box" id="chatBox">
+                        <div class="message-ai">Halo! Cerita pelan-pelan ke aku tentang apa yang mengganjal di pikiranmu hari ini, ya. Atau pilih mood-mu di bawah kalau lagi malas ngetik.</div>
+                        <div class="quick-mood-container" id="quickMoodSelector">
+                            <p>Skala mood hari ini (1–5)</p>
+                            <button class="mood-btn" onclick="sendQuickMood(1,'Sangat Buruk 😡')">1</button>
+                            <button class="mood-btn" onclick="sendQuickMood(2,'Buruk 🙁')">2</button>
+                            <button class="mood-btn" onclick="sendQuickMood(3,'Biasa Saja 😐')">3</button>
+                            <button class="mood-btn" onclick="sendQuickMood(4,'Baik 🙂')">4</button>
+                            <button class="mood-btn" onclick="sendQuickMood(5,'Sangat Baik 😄')">5</button>
+                        </div>
+                    </div>
+                    <div class="chat-input-wrap">
+                        <input type="text" id="chatInput" placeholder="Ketik apa yang mengganjal di pikiranmu..." onkeypress="handleKeyPress(event)">
+                        <button class="btn-send" id="btnSend" onclick="sendMessage()">Kirim</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Draft Jurnal -->
+        <div class="col-md-5">
+            <div class="glass-card h-100">
+                <div class="card-header-custom">
+                    <span class="icon">📝</span>
+                    Draft Jurnal Hari Ini
+                    <span style="margin-left:auto; font-size:0.7rem; color:var(--teal-400); font-weight:400;">✏️ Bisa diedit</span>
+                </div>
+                <div class="p-3">
+                    <p style="font-size:0.75rem; color:var(--slate-600); margin-bottom:1rem;">AI mengisi ini dari obrolan kita. Edit sesukamu sebelum disimpan.</p>
+
+                    <div class="draft-field-wrap">
+                        <div class="draft-label">Apa yang dirasakan</div>
+                        <div id="draft-q1" class="draft-editable" contenteditable="true" data-placeholder="Belum ada cerita..."></div>
+                    </div>
+                    <div class="draft-field-wrap">
+                        <div class="draft-label">Apa yang dipikirkan</div>
+                        <div id="draft-q2" class="draft-editable" contenteditable="true" data-placeholder="Belum ada cerita..."></div>
+                    </div>
+                    <div class="draft-field-wrap">
+                        <div class="draft-label">Hal yang mendukung</div>
+                        <div id="draft-q3" class="draft-editable" contenteditable="true" data-placeholder="Belum ada cerita..."></div>
+                    </div>
+                    <div class="draft-field-wrap">
+                        <div class="draft-label">Pikiran alternatif · CBT</div>
+                        <div id="draft-q4" class="draft-editable" contenteditable="true" data-placeholder="Belum ada cerita..." style="color:var(--teal-300)"></div>
+                    </div>
+                    <div class="draft-field-wrap">
+                        <div class="draft-label">3 Hal yang disyukuri</div>
+                        <div id="draft-q5" class="draft-editable" contenteditable="true" data-placeholder="Belum ada cerita..." style="color:#fbbf24"></div>
+                    </div>
+
+                    <button class="btn-save-journal" onclick="submitJournal()">Simpan Jurnal Hari Ini</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <hr class="section-divider">
+
+    <!-- Swipeable Journal History -->
+    <div class="deck-section">
+        <div class="deck-header">
+            <h5>📓 Riwayat Jurnal</h5>
+            <span class="deck-counter" id="deckCounter">1 / 1</span>
+        </div>
+
+        <div class="deck-wrapper" id="deck"></div>
+        <div class="deck-dots" id="deckDots"></div>
+        <p class="deck-hint">← geser untuk lihat jurnal lainnya →</p>
+    </div>
+
+    <hr class="section-divider">
+
+    <!-- Chart -->
+    <div class="glass-card chart-card mb-4">
+        <canvas id="wellnessChart"></canvas>
+    </div>
+
+</div>
+
+<script>
+    const CURRENT_USER_ID = new URLSearchParams(window.location.search).get('userId') || 12;    
+    let trendChart;
+    let chatCount = 0;
+
+    /* ─── CHART INIT ─── */
+    document.addEventListener("DOMContentLoaded", function () {
+        Chart.defaults.color = '#64748b';
+        const ctx = document.getElementById('wellnessChart').getContext('2d');
+        trendChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Wellness Index',
+                    data: [],
+                    borderColor: '#2dd4bf',
+                    backgroundColor: 'rgba(45,212,191,0.08)',
+                    borderWidth: 2,
+                    pointBackgroundColor: '#2dd4bf',
+                    pointRadius: 3,
+                    pointHoverRadius: 5,
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { font: { size: 11 } } },
+                    y: { min: 0, max: 1000, grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { font: { size: 11 }, stepSize: 200 } }
+                }
+            }
+        });
+
+        loadStudentDashboard();
+        initDeck([]);
+    });
+
+    /* ─── DASHBOARD DATA ─── */
+    async function loadStudentDashboard() {
+        try {
+            const response = await fetch(`/api/student/dashboard/${CURRENT_USER_ID}`);
+            const result = await response.json();
+            if (!result.success) return;
+
+            document.getElementById('navUsername').textContent = `${result.username} (${result.fakultas})`;
+
+            if (result.trend && result.trend.length > 0) {
+                const labels = result.trend.map(d => {
+                    const o = new Date(d.date);
+                    return isNaN(o.getTime()) ? 'D' : `${o.getDate()}/${o.getMonth() + 1}`;
+                });
+                const scores = result.trend.map(d => d.global_7day_score);
+                trendChart.data.labels = labels;
+                trendChart.data.datasets[0].data = scores;
+                trendChart.update();
+                document.getElementById('wellnessIndexScore').textContent = scores[scores.length - 1];
+            }
+
+            const alertBox = document.getElementById('doctorAlertBox');
+            if (result.doctorMessage) {
+                alertBox.style.display = 'block';
+                document.getElementById('doctorAlertText').textContent = result.doctorMessage;
+            }
+
+            initDeck(result.journals || []);
+
+        } catch (e) {
+            console.error("Gagal memuat dashboard:", e);
+        }
+    }
+
+    /* ─── SWIPE DECK ─── */
+    function buildDeckData(journals) {
+        const cards = [{
+            type: 'quote',
+            quote: '"Setiap emosi valid. Menuliskannya adalah langkah pertama untuk melepaskan beban."',
+            author: 'Tim UB Wellness'
+        }];
+        journals.forEach(j => {
+            const d = new Date(j.date);
+            cards.push({
+                type: 'journal',
+                date: isNaN(d) ? j.date : `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()}`,
+                feeling: j.q1_feeling || '-',
+                cbt: j.q4_contradicting || '-'
+            });
+        });
+        return cards;
+    }
+
+    let DECK_CARDS = [];
+    let deckIndex = 0;
+    let deckDragging = false, deckStartX = 0, deckCurrentX = 0, deckLocked = false;
+
+    function initDeck(journals) {
+        DECK_CARDS = buildDeckData(journals);
+        deckIndex = 0;
+        renderDeck();
+        attachDeckEvents();
+    }
+
+    function renderDeck() {
+        const deck = document.getElementById('deck');
+        deck.innerHTML = '';
+        DECK_CARDS.forEach((data, i) => {
+            const card = document.createElement('div');
+            card.className = 'deck-card';
+            card.dataset.index = i;
+            fillCard(card, data);
+            deck.appendChild(card);
+        });
+        updateDeckPositions();
+        renderDeckDots();
+    }
+
+    function fillCard(card, data) {
+        if (data.type === 'quote') {
+            card.innerHTML = `
+                <div>
+                    <span class="deck-tag tag-quote">kutipan</span>
+                    <p class="deck-quote-text">${data.quote}</p>
+                </div>
+                <div class="deck-footer">
+                    <span class="deck-date">${data.author}</span>
+                    <span class="deck-date" style="color:var(--teal-400)">selalu di depan ✦</span>
+                </div>`;
+        } else {
+            card.innerHTML = `
+                <div>
+                    <span class="deck-tag tag-journal">🗓 ${data.date}</span>
+                    <p class="deck-feeling">${data.feeling}</p>
+                </div>
+                <div class="deck-footer">
+                    <span class="deck-date">Solusi (CBT)</span>
+                    <span class="deck-cbt">${data.cbt}</span>
+                </div>`;
+        }
+    }
+
+    function updateDeckPositions() {
+        const cards = document.querySelectorAll('.deck-card');
+        cards.forEach(card => {
+            const i = parseInt(card.dataset.index);
+            const offset = (i - deckIndex + DECK_CARDS.length) % DECK_CARDS.length;
+            card.dataset.pos = offset <= 3 ? offset : 99;
+        });
+        document.getElementById('deckCounter').textContent = `${deckIndex + 1} / ${DECK_CARDS.length}`;
+    }
+
+    function renderDeckDots() {
+        const el = document.getElementById('deckDots');
+        el.innerHTML = '';
+        DECK_CARDS.forEach((_, i) => {
+            const d = document.createElement('div');
+            d.className = 'deck-dot' + (i === deckIndex ? ' active' : '');
+            el.appendChild(d);
+        });
+    }
+
+    function deckNext() {
+        if (deckLocked || DECK_CARDS.length <= 1) return;
+        deckLocked = true;
+        deckIndex = (deckIndex + 1) % DECK_CARDS.length;
+        if (deckIndex === 0) deckIndex = 1;
+        updateDeckPositions();
+        renderDeckDots();
+        setTimeout(() => deckLocked = false, 420);
+    }
+
+    function deckPrev() {
+        if (deckLocked) return;
+        deckLocked = true;
+        deckIndex = Math.max(0, deckIndex - 1);
+        updateDeckPositions();
+        renderDeckDots();
+        setTimeout(() => deckLocked = false, 420);
+    }
+
+    function attachDeckEvents() {
+        const deck = document.getElementById('deck');
+
+        const applyDrag = (dx) => {
+            const top = deck.querySelector('[data-pos="0"]');
+            if (top) top.style.transform = `translateX(${dx}px) rotate(${dx * 0.022}deg)`;
+        };
+        const releaseDrag = (dx) => {
+            const top = deck.querySelector('[data-pos="0"]');
+            if (top) { top.classList.remove('is-dragging'); top.style.transform = ''; }
+            if (Math.abs(dx) > 40) dx > 0 ? deckPrev() : deckNext();
+        };
+
+        deck.addEventListener('mousedown', e => {
+            deckDragging = true; deckStartX = e.clientX; deckCurrentX = 0;
+            deck.querySelector('[data-pos="0"]')?.classList.add('is-dragging');
+        });
+        document.addEventListener('mousemove', e => {
+            if (!deckDragging) return;
+            deckCurrentX = e.clientX - deckStartX;
+            applyDrag(deckCurrentX);
+        });
+        document.addEventListener('mouseup', () => {
+            if (!deckDragging) return;
+            deckDragging = false;
+            releaseDrag(deckCurrentX);
+            deckCurrentX = 0;
+        });
+
+        deck.addEventListener('touchstart', e => {
+            deckStartX = e.touches[0].clientX; deckCurrentX = 0;
+        }, { passive: true });
+        deck.addEventListener('touchmove', e => {
+            deckCurrentX = e.touches[0].clientX - deckStartX;
+            applyDrag(deckCurrentX);
+        }, { passive: true });
+        deck.addEventListener('touchend', () => {
+            releaseDrag(deckCurrentX);
+            deckCurrentX = 0;
+        });
+    }
+
+    /* ─── CHAT ─── */
+    function sendQuickMood(score, label) {
+        document.getElementById('quickMoodSelector').style.display = 'none';
+        document.getElementById('chatInput').value = `Aku lagi lelah mengetik cerita panjang. Tapi mood aku hari ini di level ${score} dari 5 (${label}). Tolong catat ini sebagai jurnal harianku ya.`;
+        sendMessage();
+    }
+
+    async function sendMessage() {
+        const inputField = document.getElementById('chatInput');
+        const message = inputField.value.trim();
+        if (!message) return;
+
+        const moodSel = document.getElementById('quickMoodSelector');
+        if (moodSel) moodSel.style.display = 'none';
+
+        appendMessage('user', message);
+        inputField.value = '';
+
+        const btnSend = document.getElementById('btnSend');
+        btnSend.disabled = true; btnSend.textContent = 'Mikir...';
+
+        try {
+            const response = await fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message, userId: CURRENT_USER_ID })
+            });
+            const result = await response.json();
+
+            if (result.success) {
+                appendMessage('ai', result.data.reply);
+
+                const setDraft = (id, val) => { if (val) document.getElementById(id).textContent = val; };
+                setDraft('draft-q1', result.data.q1_feeling);
+                setDraft('draft-q2', result.data.q2_thought);
+                setDraft('draft-q3', result.data.q3_supporting);
+                setDraft('draft-q4', result.data.q4_contradicting);
+                setDraft('draft-q5', result.data.q5_gratitude);
+
+                chatCount++;
+                if (chatCount === 5) {
+                    alert("🚀 Sudah 5 obrolan! Jurnal CBT-mu otomatis dikunci hari ini.");
+                    submitJournal();
+                }
+            }
+        } catch (e) {
+            appendMessage('ai', 'Maaf, server lagi sibuk. Tapi ceritamu aman!');
+        }
+
+        btnSend.disabled = false; btnSend.textContent = 'Kirim';
+    }
+
+    function appendMessage(sender, text) {
+        if (sender === 'user' && text.includes("Aku lagi lelah mengetik cerita panjang.")) {
+            text = "📊 Quick Mood Update terkirim";
+        }
+        const chatBox = document.getElementById('chatBox');
+        const div = document.createElement('div');
+        div.className = sender === 'user' ? 'message-user' : 'message-ai';
+        div.textContent = text;
+        chatBox.appendChild(div);
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function handleKeyPress(e) { if (e.key === 'Enter') sendMessage(); }
+
+    /* ─── SUBMIT JOURNAL ─── */
+    async function submitJournal() {
+        try {
+            const response = await fetch('/api/journal/submit', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    userId: CURRENT_USER_ID,
+                    feeling:       document.getElementById('draft-q1').textContent,
+                    thought:       document.getElementById('draft-q2').textContent,
+                    supporting:    document.getElementById('draft-q3').textContent,
+                    contradicting: document.getElementById('draft-q4').textContent
+                })
+            });
+            const result = await response.json();
+            if (result.success) {
+                alert(`Jurnal tersimpan! Skor baru: ${result.global7DayScore}`);
+                const ds = trendChart.data.datasets[0].data;
+                if (ds.length) ds[ds.length - 1] = result.global7DayScore;
+                trendChart.update();
+                document.getElementById('wellnessIndexScore').textContent = result.global7DayScore;
+            }
+        } catch (e) {
+            alert("Gangguan koneksi saat menyimpan jurnal.");
+        }
+    }
+</script>
+</body>
+</html>
