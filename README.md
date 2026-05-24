@@ -1,6 +1,6 @@
 ## 4. Setup Environment & Deployment Sederhana
 
-Project ini dirancang menggunakan **Docker Containerization** untuk memastikan isolasi *environment* yang konsisten, aman, dan *reproducible* (berjalan sama persis di komputer juri maupun di server produksi tanpa konflik dependensi lokal).
+Project ini dirancang menggunakan **Docker Containerization** untuk memastikan isolasi *environment* yang konsisten, aman, dan *reproducible* (berjalan sama persis di OS Linux maupun Windows tanpa konflik dependensi lokal).
 
 ---
 
@@ -18,10 +18,11 @@ Sistem dideploy menggunakan **Docker Compose** yang membagi aplikasi menjadi dua
 
 ### B. Prasyarat Sistem (Prerequisites)
 
-Sebelum melakukan deployment, pastikan perangkat Anda sudah terinstall beberapa tools berikut:
+Sebelum melakukan deployment, pastikan perangkat Anda sudah terinstall tools berikut sesuai dengan Operating System yang Anda gunakan:
 
-- [Docker Engine](https://docs.docker.com/engine/install/) (Minimal versi 20.10)
-- [Docker Compose](https://docs.docker.com/compose/install/) (Minimal versi 2.0)
+- **Windows / macOS**: [Docker Desktop](https://www.docker.com/products/docker-desktop/) (Pastikan aplikasi Docker Desktop sudah dalam posisi *Running* di background).
+- **Linux**: [Docker Engine](https://docs.docker.com/engine/install/) & [Docker Compose](https://docs.docker.com/compose/install/) (Minimal versi 2.0).
+- **Git**: [Git CLI](https://git-scm.com/downloads) (Untuk melakukan cloning repository).
 
 ---
 
@@ -44,11 +45,15 @@ Juri hanya perlu mengeksekusi rangkaian perintah sederhana berikut di terminal u
    cd fidus-ai-ub
    ```
 
-2. **Jalankan Otomatisasi Sistem**
-   Eksekusi script wrapper untuk memicu kompilasi container, penyiapan virtual network internal, injeksi aman API Key, dan inisialisasi otomatis skema database `init.sql`:
-   ```bash
-   bash run.sh
-   ```
+2. **Jalankan Otomatisasi Sistem (Sesuai OS)**
+   - **Jika Anda menggunakan Linux / macOS**: Langsung jalankan perintah di terminal:
+     ```bash
+     bash run.sh
+     ```
+   - **Jika Anda menggunakan Windows**: Buka folder project menggunakan **Git Bash** (bawaan Git for Windows) atau **WSL terminal**, kemudian jalankan perintah yang sama:
+     ```bash
+     bash run.sh
+     ```
 
 3. **Verifikasi Status Container**
    Pastikan seluruh layanan penunjang sistem telah berjalan dengan status `Up`:
