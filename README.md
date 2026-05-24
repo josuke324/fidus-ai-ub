@@ -45,7 +45,7 @@ Juri hanya perlu mengikuti panduan spesifik per Sistem Operasi berikut ini agar 
 **Langkah 2: Clone & Masuk ke Direktori Project**
 Jalankan perintah ini di dalam terminal Anda:
 ```bash
-git clone [https://github.com/josuke324/fidus-ai-ub.git](https://github.com/josuke324/fidus-ai-ub.git)
+git clone https://github.com/josuke324/fidus-ai-ub.git
 cd fidus-ai-ub
 ```
 
