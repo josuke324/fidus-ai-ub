@@ -20,7 +20,7 @@ Sistem dideploy menggunakan **Docker Compose** yang membagi aplikasi menjadi dua
 
 Sebelum melakukan deployment, pastikan perangkat Anda sudah terinstall tools berikut sesuai dengan Operating System yang Anda gunakan:
 
-- **Windows / macOS**: [Docker Desktop](https://www.docker.com/products/docker-desktop/) (Pastikan aplikasi Docker Desktop sudah dalam posisi *Running* / Aktif).
+- **Windows / macOS**: [Docker Desktop](https://www.docker.com/products/docker-desktop/) (**Wajib dipastikan aplikasi Docker Desktop sudah dibuka/Running** sampai ikon paus di taskbar berwarna hijau).
 - **Linux**: [Docker Engine](https://docs.docker.com/engine/install/) & [Docker Compose](https://docs.docker.com/compose/install/) (Minimal versi 2.0).
 - **Git**: [Git CLI](https://git-scm.com/downloads) (Untuk melakukan cloning repository).
 
@@ -57,6 +57,15 @@ Juri hanya perlu mengeksekusi rangkaian perintah sederhana berikut untuk menjala
      bash run.sh
      ```
 
+> ⚠️ **PENTING: JIKA MUNCUL ERROR DOCKER API / SOCKET / DAEMON**
+> 
+> Jika proses build gagal dengan pesan *“failed to connect to the docker API”* atau *“docker daemon is not running”*, artinya service Docker di perangkat Anda belum aktif. Selesaikan dengan perintah berikut sesuai OS Anda:
+> - **Windows**: Cukup buka/jalankan aplikasi **Docker Desktop** Anda lewat Start Menu.
+> - **Linux (Docker Standard)**: Jalankan `sudo systemctl start docker`
+> - **Linux (Podman / Parrot OS User)**: Jalankan `systemctl --user enable --now podman.socket`
+> 
+> Setelah service aktif, silakan jalankan kembali file `run.bat` atau `bash run.sh`.
+
 3. **Verifikasi Status Container**
    Pastikan seluruh layanan penunjang sistem telah berjalan dengan status `Up`:
    ```bash
@@ -69,7 +78,8 @@ Juri hanya perlu mengeksekusi rangkaian perintah sederhana berikut untuk menjala
    - **Dashboard Utama**: `http://localhost:3000`
    - **Bypass Akses Konselor (Direct Link)**: `http://localhost:3000/doctor.html?role=psikiater`
 
-   ---
+---
+
 ### E. Manajemen Layanan & Pembersihan (Troubleshooting)
 
 - **Melihat Log Aplikasi secara Real-time**
