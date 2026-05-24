@@ -1,6 +1,6 @@
 ## 4. Setup Environment & Deployment Sederhana
 
-Project ini dirancang menggunakan **Docker Containerization** untuk memastikan isolasi *environment* yang konsisten, aman, dan *reproducible* (berjalan sama persis di OS Linux maupun Windows tanpa konflik dependensi lokal).
+Project ini dirancang menggunakan **Docker Containerization** untuk memastikan isolasi *environment* yang konsisten, aman, dan *reproducible* (berjalan sama persis di OS Linux, macOS, maupun Windows tanpa konflik dependensi lokal).
 
 ---
 
@@ -20,7 +20,7 @@ Sistem dideploy menggunakan **Docker Compose** yang membagi aplikasi menjadi dua
 
 Sebelum melakukan deployment, pastikan perangkat Anda sudah terinstall tools berikut sesuai dengan Operating System yang Anda gunakan:
 
-- **Windows / macOS**: [Docker Desktop](https://www.docker.com/products/docker-desktop/) (Pastikan aplikasi Docker Desktop sudah dalam posisi *Running* di background).
+- **Windows / macOS**: [Docker Desktop](https://www.docker.com/products/docker-desktop/) (Pastikan aplikasi Docker Desktop sudah dalam posisi *Running* / Aktif).
 - **Linux**: [Docker Engine](https://docs.docker.com/engine/install/) & [Docker Compose](https://docs.docker.com/compose/install/) (Minimal versi 2.0).
 - **Git**: [Git CLI](https://git-scm.com/downloads) (Untuk melakukan cloning repository).
 
@@ -30,27 +30,29 @@ Sebelum melakukan deployment, pastikan perangkat Anda sudah terinstall tools ber
 
 Untuk mematuhi standar keamanan industri, kredensial sensitif dan LLM API Key dilarang keras di-push langsung ke repositori publik demi menghindari eksploitasi oleh bot crawler otomatis. 
 
-Oleh karena itu, sistem ini di-deploy menggunakan **Script Wrapper (`run.sh`)** yang berfungsi menyuntikkan *Environment Variables* dan API Key secara dinamis langsung ke memori lokal kontainer saat inisialisasi awal. Juri **tidak perlu** membuat atau mengonfigurasi file `.env` secara manual (Zero-Configuration Deployment).
+Oleh karena itu, sistem ini di-deploy menggunakan **Script Wrapper (`run.sh` / `run.bat`)** yang berfungsi menyuntikkan *Environment Variables* dan API Key secara dinamis langsung ke memori lokal kontainer saat inisialisasi awal. Juri **tidak perlu** membuat atau mengonfigurasi file `.env` secara manual (Zero-Configuration Deployment).
 
 ---
 
 ### D. Langkah-Langkah Deployment (Step-by-Step)
 
-Juri hanya perlu mengeksekusi rangkaian perintah sederhana berikut di terminal untuk menjalankan seluruh sistem beserta modul analisis AI secara instan:
+Juri hanya perlu mengeksekusi rangkaian perintah sederhana berikut untuk menjalankan seluruh sistem beserta modul analisis AI secara instan:
 
 1. **Clone & Masuk ke Direktori Project**
-   Buka terminal Anda, arahkan ke direktori kerja, lalu jalankan:
+   Buka terminal/command prompt Anda, arahkan ke direktori kerja, lalu jalankan:
    ```bash
    git clone [https://github.com/josuke324/fidus-ai-ub.git](https://github.com/josuke324/fidus-ai-ub.git)
    cd fidus-ai-ub
    ```
 
 2. **Jalankan Otomatisasi Sistem (Sesuai OS)**
-   - **Jika Anda menggunakan Linux / macOS**: Langsung jalankan perintah di terminal:
-     ```bash
-     bash run.sh
+   - **Jika Anda menggunakan Windows**: 
+     Cukup klik dua kali (*double-click*) file `run.bat` di dalam folder project, atau jalankan perintah berikut di CMD/PowerShell:
+     ```cmd
+     run.bat
      ```
-   - **Jika Anda menggunakan Windows**: Buka folder project menggunakan **Git Bash** (bawaan Git for Windows) atau **WSL terminal**, kemudian jalankan perintah yang sama:
+   - **Jika Anda menggunakan Linux / macOS**: 
+     Jalankan perintah berikut di terminal:
      ```bash
      bash run.sh
      ```
