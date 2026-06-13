@@ -3,9 +3,9 @@
 
 # Trik memecah key agar lolos dari scan otomatis GitHub publik
 
-PART1="AIzaSyA0sEpfOiI3S"
+PART1=""
 
-PART2="x4TAFFjX-lQhxkGDVhpl74"
+PART2=""
 
 
 # Gabungin kembali key-nya di memori lokal pas dijalankan
